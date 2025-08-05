@@ -31,13 +31,19 @@ def load_model():
     
     try:
         logger.info("Loading Whisper model...")
+        import torch
         from transformers import pipeline
+        
+        # Optimize for Railway's limited memory
+        torch.set_num_threads(1)  # Reduce CPU usage
         
         # Use tiny model for Railway's free tier (39MB)
         transcriber = pipeline(
             "automatic-speech-recognition",
             model="openai/whisper-tiny",
-            device=-1  # Use CPU
+            device=-1,  # Use CPU
+            torch_dtype=torch.float32,
+            low_cpu_mem_usage=True
         )
         
         MODEL_LOADED = True
